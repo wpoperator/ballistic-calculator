@@ -1,5 +1,7 @@
 'use client';
 
+// Hot reload test - This should update automatically!
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,18 +86,18 @@ export default function BallisticsCalculator() {
     defaultValues: {
       weapon: {
         sight_height: 2.0,
-        twist: 12.0,
+        twist: 8.0,
       },
       ammo: {
-        bc: 0.5,
+        bc: 0.647,
         drag_model: 'G1',
-        muzzle_velocity: 2800,
-        bullet_weight: 150,
+        muzzle_velocity: 2750,
+        bullet_weight: 140,
       },
       atmosphere: {
-        temperature: 59,
+        temperature: 88,
         pressure: 29.92,
-        humidity: 0.5,
+        humidity: 0.7,
         altitude: 0,
       },
       wind: {
@@ -104,7 +106,7 @@ export default function BallisticsCalculator() {
       },
       zero_distance: 100,
       max_range: 1000,
-      step_size: 25,
+      step_size: 100,
     },
   });
 
@@ -548,7 +550,7 @@ export default function BallisticsCalculator() {
                       <div className="text-center">
                         <p className="text-sm font-medium text-slate-600">Zero Adjustment</p>
                         <p className="text-2xl font-bold text-blue-600">
-                          {results.zero_adjustment.toFixed(2)} MOA
+                          {results.zero_adjustment.toFixed(2)} Mils
                         </p>
                       </div>
                     </CardContent>
