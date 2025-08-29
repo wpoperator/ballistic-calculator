@@ -103,7 +103,7 @@ class BallisticsService:
 
             return CalculationResponse(
                 trajectory=trajectory_points,
-                zero_adjustment=float(zero_adjustment >> Angular.MOA),
+                zero_adjustment=float(zero_adjustment >> Angular.MIL),
                 success=True,
                 message="Calculation completed successfully"
             )
@@ -128,24 +128,32 @@ class BallisticsService:
         for i, point in enumerate(result):
             # Debug: log available attributes for first point
             if i == 0:
-                available_attrs = [attr for attr in dir(point) if not attr.startswith('_')]
-                logger.info(f"Available trajectory point attributes: {available_attrs}")
+                available_attrs = [
+                    attr for attr in dir(point)
+                    if not attr.startswith('_')
+                ]
+                logger.info(
+                    f"Available trajectory point attributes: {available_attrs}"
+                )
 
+            # Extract energy value
             energy = 0.0
             if hasattr(point, 'energy'):
                 energy = float(point.energy >> Energy.FootPound)
 
+            # Extract drop adjustment in MIL
             drop_adj = 0.0
             if hasattr(point, 'drop_adj'):
-                drop_adj = float(point.drop_adj >> Angular.MOA)
+                drop_adj = float(point.drop_adj >> Angular.MIL)
             elif hasattr(point, 'drop_adjustment'):
-                drop_adj = float(point.drop_adjustment >> Angular.MOA)
+                drop_adj = float(point.drop_adjustment >> Angular.MIL)
 
+            # Extract windage adjustment in MIL
             windage_adj = 0.0
             if hasattr(point, 'windage_adj'):
-                windage_adj = float(point.windage_adj >> Angular.MOA)
+                windage_adj = float(point.windage_adj >> Angular.MIL)
             elif hasattr(point, 'windage_adjustment'):
-                windage_adj = float(point.windage_adjustment >> Angular.MOA)
+                windage_adj = float(point.windage_adjustment >> Angular.MIL)
 
             # Try different attribute names for drop/height
             drop_value = 0.0
