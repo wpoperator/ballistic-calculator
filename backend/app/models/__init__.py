@@ -132,13 +132,13 @@ class TrajectoryPoint(BaseModel):
     velocity: float = Field(description="Velocity in fps")
     energy: float = Field(description="Energy in foot-pounds")
     time: float = Field(description="Time of flight in seconds")
-    drop_adjustment: float = Field(description="Drop adjustment in MOA")
-    windage_adjustment: float = Field(description="Windage adjustment in MOA")
+    drop_adjustment: float = Field(description="Drop adjustment in Mil")
+    windage_adjustment: float = Field(description="Windage adjustment in Mil")
 
 
 class CalculationResponse(BaseModel):
     trajectory: List[TrajectoryPoint]
-    zero_adjustment: float = Field(description="Zero adjustment in MOA")
+    zero_adjustment: float = Field(description="Zero adjustment in Mil")
     success: bool = True
     message: str = "Calculation completed successfully"
 
