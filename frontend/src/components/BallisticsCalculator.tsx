@@ -1,7 +1,5 @@
 'use client';
 
-// Hot reload test - This should update automatically!
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 // Validation schema
 const formSchema = z.object({
@@ -142,24 +141,30 @@ export default function BallisticsCalculator() {
 
     return results.trajectory.map((point) => ({
       distance: point.distance,
-      drop: point.drop,
-      windage: point.windage,
+      drop: point.drop_adjustment,
+      windage: point.windage_adjustment,
       velocity: point.velocity,
       energy: point.energy,
     }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
-            Ballistics Calculator
-          </h1>
-          <p className="text-slate-600">
-            Advanced trajectory calculation using py-ballisticcalc
-          </p>
-        </header>
+        {/* Header with Theme Toggle */}
+        <div className="flex justify-between items-start mb-8">
+          <header className="text-center flex-1">
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Ballistics Calculator (Mil-based)
+            </h1>
+            <p className="text-muted-foreground">
+              Advanced trajectory calculation with milliradian adjustments
+            </p>
+          </header>
+          <div className="ml-4">
+            <ThemeToggle />
+          </div>
+        </div>
 
         <Tabs defaultValue="inputs" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
@@ -180,7 +185,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-blue-600" />
+                      <Target className="w-5 h-5 text-chart-1" />
                       Weapon Configuration
                     </CardTitle>
                     <CardDescription>
@@ -231,7 +236,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-green-600" />
+                      <Calculator className="w-5 h-5 text-chart-3" />
                       Ammunition
                     </CardTitle>
                     <CardDescription>
@@ -321,7 +326,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Wind className="w-5 h-5 text-cyan-600" />
+                      <Wind className="w-5 h-5 text-chart-2" />
                       Atmospheric Conditions
                     </CardTitle>
                     <CardDescription>
@@ -408,7 +413,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Wind className="w-5 h-5 text-purple-600" />
+                      <Wind className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                       Wind Conditions
                     </CardTitle>
                     <CardDescription>
@@ -459,7 +464,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Settings className="w-5 h-5 text-gray-600" />
+                      <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                       Calculation Settings
                     </CardTitle>
                     <CardDescription>
@@ -548,8 +553,8 @@ export default function BallisticsCalculator() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="text-center">
-                        <p className="text-sm font-medium text-slate-600">Zero Adjustment</p>
-                        <p className="text-2xl font-bold text-blue-600">
+                        <p className="text-sm font-medium text-slate">Zero Adjustment</p>
+                        <p className="text-2xl font-bold text-chart-1">
                           {results.zero_adjustment.toFixed(2)} Mils
                         </p>
                       </div>
@@ -558,9 +563,9 @@ export default function BallisticsCalculator() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="text-center">
-                        <p className="text-sm font-medium text-slate-600">Max Drop</p>
-                        <p className="text-2xl font-bold text-red-600">
-                          {Math.max(...results.trajectory.map((p) => Math.abs(p.drop))).toFixed(1)}&quot;
+                        <p className="text-sm font-medium">Max Drop</p>
+                        <p className="text-2xl font-bold text-chart-1">
+                          {Math.max(...results.trajectory.map((p) => Math.abs(p.drop_adjustment))).toFixed(2)} mils
                         </p>
                       </div>
                     </CardContent>
@@ -568,9 +573,9 @@ export default function BallisticsCalculator() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="text-center">
-                        <p className="text-sm font-medium text-slate-600">Max Windage</p>
-                        <p className="text-2xl font-bold text-purple-600">
-                          {Math.max(...results.trajectory.map((p) => Math.abs(p.windage))).toFixed(1)}&quot;
+                        <p className="text-sm font-medium">Max Windage</p>
+                        <p className="text-2xl font-bold">
+                          {Math.max(...results.trajectory.map((p) => Math.abs(p.windage_adjustment))).toFixed(2)} mils
                         </p>
                       </div>
                     </CardContent>
@@ -582,35 +587,45 @@ export default function BallisticsCalculator() {
                   <CardHeader>
                     <CardTitle>Trajectory Chart</CardTitle>
                     <CardDescription>
-                      Bullet drop and windage over distance
+                      Bullet drop and windage over distance (in mils)
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={400}>
                       <LineChart data={formatChartData()}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                         <XAxis 
                           dataKey="distance" 
-                          label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -10 }} 
+                          label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -10 }}
+                          className="stroke-muted-foreground"
                         />
                         <YAxis 
-                          label={{ value: 'Drop (inches)', angle: -90, position: 'insideLeft' }} 
+                          label={{ value: 'Drop (mils)', angle: -90, position: 'insideLeft' }}
+                          className="stroke-muted-foreground"
                         />
-                        <Tooltip formatter={(value, name) => [Number(value).toFixed(2), name]} />
+                        <Tooltip 
+                          formatter={(value, name) => [Number(value).toFixed(2), name]}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            color: 'hsl(var(--foreground))'
+                          }}
+                        />
                         <Legend />
                         <Line
                           type="monotone"
                           dataKey="drop"
-                          stroke="#dc2626"
+                          stroke="hsl(var(--chart-1))"
                           strokeWidth={2}
-                          name="Drop (in)"
+                          name="Drop (mils)"
                         />
                         <Line
                           type="monotone"
                           dataKey="windage"
-                          stroke="#7c3aed"
+                          stroke="hsl(var(--chart-2))"
                           strokeWidth={2}
-                          name="Windage (in)"
+                          name="Windage (mils)"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -631,8 +646,8 @@ export default function BallisticsCalculator() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Distance</TableHead>
-                            <TableHead>Drop</TableHead>
-                            <TableHead>Windage</TableHead>
+                            <TableHead>Drop (mils)</TableHead>
+                            <TableHead>Windage (mils)</TableHead>
                             <TableHead>Velocity</TableHead>
                             <TableHead>Energy</TableHead>
                             <TableHead>Time</TableHead>
@@ -644,8 +659,8 @@ export default function BallisticsCalculator() {
                               <TableCell className="font-medium">
                                 {point.distance.toFixed(0)} yd
                               </TableCell>
-                              <TableCell>{point.drop.toFixed(1)}&quot;</TableCell>
-                              <TableCell>{point.windage.toFixed(1)}&quot;</TableCell>
+                              <TableCell>{point.drop_adjustment.toFixed(2)} mils</TableCell>
+                              <TableCell>{point.windage_adjustment.toFixed(2)} mils</TableCell>
                               <TableCell>{point.velocity.toFixed(0)} fps</TableCell>
                               <TableCell>{point.energy.toFixed(0)} ft-lb</TableCell>
                               <TableCell>{point.time.toFixed(3)} s</TableCell>
