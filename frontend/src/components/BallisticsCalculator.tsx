@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 
 // Validation schema
 const formSchema = z.object({
@@ -87,8 +88,8 @@ export default function BallisticsCalculator() {
         twist: 8.0,
       },
       ammo: {
-        bc: 0.647,
-        drag_model: 'G1',
+        bc: 0.326,
+        drag_model: 'G7',
         muzzle_velocity: 2750,
         bullet_weight: 140,
       },
@@ -128,6 +129,9 @@ export default function BallisticsCalculator() {
 
       const result: CalculationResponse = await response.json();
       setResults(result);
+      
+      // Show success toast notification
+      toast.success("Calculation complete - Please open the Data tab to view results");
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
