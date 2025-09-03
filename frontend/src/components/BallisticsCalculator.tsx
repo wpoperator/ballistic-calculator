@@ -11,7 +11,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { Calculator, Target, Wind, Settings, AlertCircle } from 'lucide-react';
@@ -100,7 +99,7 @@ export default function BallisticsCalculator() {
         altitude: 0,
       },
       wind: {
-        speed: 0,
+        speed: 5,
         direction: 3,
       },
       zero_distance: 100,
@@ -174,7 +173,7 @@ export default function BallisticsCalculator() {
             </TabsTrigger>
             <TabsTrigger value="results" className="flex items-center gap-2" disabled={!results}>
               <Target className="w-4 h-4" />
-              Results
+              Data
             </TabsTrigger>
           </TabsList>
 
@@ -413,7 +412,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Wind className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <Wind className="w-5 h-5" />
                       Wind Conditions
                     </CardTitle>
                     <CardDescription>
@@ -464,7 +463,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <Settings className="w-5 h-5" />
                       Calculation Settings
                     </CardTitle>
                     <CardDescription>
@@ -553,8 +552,8 @@ export default function BallisticsCalculator() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="text-center">
-                        <p className="text-sm font-medium text-slate">Zero Adjustment</p>
-                        <p className="text-2xl font-bold text-chart-1">
+                        <p className="text-sm font-medium">Zero Adjustment</p>
+                        <p className="text-2xl font-bold">
                           {results.zero_adjustment.toFixed(2)} Mils
                         </p>
                       </div>
@@ -564,7 +563,7 @@ export default function BallisticsCalculator() {
                     <CardContent className="p-6">
                       <div className="text-center">
                         <p className="text-sm font-medium">Max Drop</p>
-                        <p className="text-2xl font-bold text-chart-1">
+                        <p className="text-2xl font-bold">
                           {Math.max(...results.trajectory.map((p) => Math.abs(p.drop_adjustment))).toFixed(2)} mils
                         </p>
                       </div>
@@ -590,18 +589,21 @@ export default function BallisticsCalculator() {
                       Bullet drop and windage over distance (in mils)
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className='my-4'>
                     <ResponsiveContainer width="100%" height={400}>
-                      <LineChart data={formatChartData()}>
+                      <LineChart 
+                        data={formatChartData()}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                         <XAxis 
                           dataKey="distance" 
-                          label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -10 }}
-                          className="stroke-muted-foreground"
+                          label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -15}}
+                          className="foreground"
                         />
                         <YAxis 
                           label={{ value: 'Drop (mils)', angle: -90, position: 'insideLeft' }}
-                          className="stroke-muted-foreground"
+                          className="primary"
                         />
                         <Tooltip 
                           formatter={(value, name) => [Number(value).toFixed(2), name]}
@@ -612,18 +614,18 @@ export default function BallisticsCalculator() {
                             color: 'hsl(var(--foreground))'
                           }}
                         />
-                        <Legend />
+                        {/* <Legend /> */}
                         <Line
                           type="monotone"
                           dataKey="drop"
-                          stroke="hsl(var(--chart-1))"
+                          stroke="#FFF"
                           strokeWidth={2}
                           name="Drop (mils)"
                         />
                         <Line
                           type="monotone"
                           dataKey="windage"
-                          stroke="hsl(var(--chart-2))"
+                          stroke="#FFF"
                           strokeWidth={2}
                           name="Windage (mils)"
                         />

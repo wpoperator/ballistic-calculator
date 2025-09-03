@@ -78,13 +78,18 @@ class BallisticsService:
 
             # Set zero and calculate trajectory
             zero_distance = Distance.Yard(request.zero_distance)
+            logger.info(f"Zero distance: {request.zero_distance} yds")
             zero_adjustment = self.calculator.set_weapon_zero(
                 shot, zero_distance
             )
+            logger.info(f"Zero adjustment calculated: {zero_adjustment}")
 
             # Calculate trajectory with step size
             trajectory_range = Distance.Yard(request.max_range)
             trajectory_step = Distance.Yard(request.step_size)
+            max_range = request.max_range
+            step_size = request.step_size
+            logger.info(f"Range: {max_range} yds, Step: {step_size} yds")
 
             result = self.calculator.fire(
                 shot,
@@ -93,8 +98,33 @@ class BallisticsService:
                 extra_data=True
             )
 
+            # Extract trajectory data from HitResult object
+            # py-ballisticcalc returns a HitResult containing a trajectory list
+            if hasattr(result, 'trajectory'):
+                all_trajectory_points = result.trajectory
+            else:
+                # Fallback for unexpected result structure
+                all_trajectory_points = [result]
+
+            # Filter trajectory points to only include clean step intervals
+            # py-ballisticcalc includes extra points for zeroing calculations
+            # and internal ballistics computations that we don't want to show
+            trajectory_data = []
+            for point in all_trajectory_points:
+                distance = float(point.distance >> Distance.Yard)
+                # Include muzzle point (0) and points at exact step intervals
+                if distance == 0.0 or distance % step_size == 0.0:
+                    trajectory_data.append(point)
+
+            logger.info(
+                f"Filtered to {len(trajectory_data)} points from "
+                f"{len(all_trajectory_points)} total points"
+            )
+
             # Convert to response format
-            trajectory_points = self._convert_trajectory_points(result)
+            trajectory_points = self._convert_trajectory_points(
+                trajectory_data, request
+            )
 
             logger.info(
                 f"Trajectory calculation completed with "
@@ -121,15 +151,29 @@ class BallisticsService:
         else:
             return TableG1
 
-    def _convert_trajectory_points(self, result) -> List[TrajectoryPoint]:
+    def _convert_trajectory_points(
+        self, result, request: CalculationRequest
+    ) -> List[TrajectoryPoint]:
         """Convert calculation result to trajectory points."""
         trajectory_points = []
 
         for point in result:
-            # Extract energy value
+            # Extract energy value from py-ballisticcalc or calculate manually
             energy = 0.0
-            if hasattr(point, 'energy'):
-                energy = float(point.energy >> Energy.FootPound)
+            if hasattr(point, 'energy') and point.energy is not None:
+                try:
+                    energy = float(point.energy >> Energy.FootPound)
+                except Exception:
+                    energy = 0.0
+
+            # If py-ballisticcalc energy is 0, calculate manually
+            if energy == 0.0 and request.ammo.bullet_weight:
+                # Manual kinetic energy calculation: KE = 0.5 * m * v²
+                # Convert grains to pounds (7000 grains = 1 pound)
+                mass_pounds = request.ammo.bullet_weight / 7000.0
+                velocity_fps = float(point.velocity >> Velocity.FPS)
+                # Energy in foot-pounds (divide by gc = 32.174 lbm⋅ft/(lbf⋅s²))
+                energy = 0.5 * mass_pounds * (velocity_fps ** 2) / 32.174
 
             # Extract drop adjustment in Mil
             drop_adj = 0.0
