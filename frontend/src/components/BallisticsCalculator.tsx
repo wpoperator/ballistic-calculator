@@ -13,8 +13,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Calculator, Target, Wind, Settings, AlertCircle } from 'lucide-react';
-
+import { Crosshair, Target, Wind, Cloud, Settings, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -188,7 +187,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-chart-1" />
+                      <Crosshair className="w-5 h-5" />
                       Weapon Configuration
                     </CardTitle>
                     <CardDescription>
@@ -239,7 +238,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-chart-3" />
+                      <Target className="w-5 h-5" />
                       Ammunition
                     </CardTitle>
                     <CardDescription>
@@ -329,7 +328,7 @@ export default function BallisticsCalculator() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Wind className="w-5 h-5 text-chart-2" />
+                      <Cloud className="w-5 h-5" />
                       Atmospheric Conditions
                     </CardTitle>
                     <CardDescription>
