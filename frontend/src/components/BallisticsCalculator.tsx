@@ -620,14 +620,14 @@ export default function BallisticsCalculator() {
                         <Line
                           type="monotone"
                           dataKey="drop"
-                          stroke="#FFF"
+                          stroke='var(--foreground)'
                           strokeWidth={2}
                           name="Drop (mils)"
                         />
                         <Line
                           type="monotone"
                           dataKey="windage"
-                          stroke="#FFF"
+                          stroke='var(--foreground)'
                           strokeWidth={2}
                           name="Windage (mils)"
                         />
