@@ -617,7 +617,6 @@ export default function BallisticsCalculator() {
                             color: 'hsl(var(--foreground))'
                           }}
                         />
-                        {/* <Legend /> */}
                         <Line
                           type="monotone"
                           dataKey="drop"
