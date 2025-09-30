@@ -24,6 +24,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
+import { useBallisticsCalculator } from '@/hooks/useBallisticsCalculator';
+import type { CalculationResponse } from '@/lib/ballistics';
 
 // Validation schema
 const formSchema = z.object({
@@ -54,30 +56,10 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-interface TrajectoryPoint {
-  distance: number;
-  drop: number;
-  windage: number;
-  velocity: number;
-  energy: number;
-  time: number;
-  drop_adjustment: number;
-  windage_adjustment: number;
-}
-
-interface CalculationResponse {
-  trajectory: TrajectoryPoint[];
-  zero_adjustment: number;
-  success: boolean;
-  message: string;
-}
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 export default function BallisticsCalculator() {
   const [results, setResults] = useState<CalculationResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const { calculate, validate, loading, error, resetError } = useBallisticsCalculator();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -109,32 +91,24 @@ export default function BallisticsCalculator() {
   });
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true);
-    setError('');
+    setValidationMessage(null);
+    resetError();
+
+    const validation = validate(data);
+    if (!validation.valid) {
+      setValidationMessage(validation.message);
+      toast.error(validation.message);
+      return;
+    }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/calculate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Calculation failed');
-      }
-
-      const result: CalculationResponse = await response.json();
+      const result = await calculate(data);
       setResults(result);
-      
-      // Show success toast notification
-      toast.success("Calculation complete - Please open the Data tab to view results");
+      toast.success('Calculation complete - Please open the Data tab to view results');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setValidationMessage(message);
+      toast.error(message);
     }
   };
 
@@ -531,10 +505,10 @@ export default function BallisticsCalculator() {
                   </CardContent>
                 </Card>
 
-                {error && (
+                {(validationMessage ?? error) && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription>{validationMessage ?? error}</AlertDescription>
                   </Alert>
                 )}
 
