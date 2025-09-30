@@ -1,4 +1,6 @@
-# Ballistics Calculator
+![Image of VAPR Ballistics logo](/frontend/public/vapr-ballistics.svg "VAPR logo")
+
+# VAPR Ballistics Calculator
 
 A production-ready web application for advanced ballistic trajectory calculations using the [py-ballisticcalc](https://github.com/o-murphy/py-ballisticcalc) Python package.
 
