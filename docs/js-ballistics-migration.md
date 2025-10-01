@@ -55,8 +55,10 @@ This document captures the behaviour currently implemented by the FastAPI+`py-ba
 - Port validation limits (`MAX_RANGE_YARDS`, `MAX_STEP_SIZE`, etc.) into a shared config so the frontend enforces the same rules post-migration.
 - Prepare sample payloads (existing `/test_request.json`, etc.) for parity tests.
 
-This mapping will evolve as we learn more about the JS API—update the table whenever new gaps or capabilities are discovered.
+## 5. Outstanding work (2025-10-01)
 
-Begin PWA scaffolding when ready for offline support.
-Add parity tests comparing the wrapper against saved FastAPI responses.
-Outline the Web Worker follow-up once any performance gaps appear.
+- [ ] Implement the `js-ballistics` client wrapper (planned `frontend/lib/ballistics.ts`) that mirrors the FastAPI pipeline, including zeroing, trajectory filtering, and energy calculations.
+- [ ] Centralise validation limits in a shared module so the frontend enforces the same bounds currently defined in `backend/app/core/config.py`.
+- [ ] Capture parity fixtures from the FastAPI service and add tests that compare the new wrapper’s output against those baselines.
+- [ ] Scaffold the PWA/offline support (service worker, manifest) referenced in this migration plan.
+- [ ] Document the follow-up plan for moving heavy trajectory computation into a Web Worker.

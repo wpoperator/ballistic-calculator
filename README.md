@@ -49,22 +49,22 @@ A production-ready web application for advanced ballistic trajectory calculation
 2. **Backend Setup**
    ```bash
    cd backend
-   
+
    # Create virtual environment
    python -m venv venv
-   
+
    # Activate virtual environment
    # Windows:
    venv\Scripts\activate
    # Linux/Mac:
    source venv/bin/activate
-   
+
    # Install dependencies
    pip install -r requirements-dev.txt
-   
+
    # Copy environment file
    cp .env.example .env
-   
+
    # Run the development server
    uvicorn app.main:app --reload --port 8000
    ```
@@ -72,13 +72,13 @@ A production-ready web application for advanced ballistic trajectory calculation
 3. **Frontend Setup** (in a new terminal)
    ```bash
    cd frontend
-   
+
    # Install dependencies
    npm install
-   
+
    # Copy environment file
    cp .env.example .env.local
-   
+
    # Run the development server
    npm run dev
    ```
@@ -369,7 +369,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, please open an issue on GitHub or contact [your-email@example.com].
+For support, please open an issue on GitHub.
 
 ---
 
