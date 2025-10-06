@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Crosshair, Target, Wind, Cloud, Settings, AlertCircle } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -60,6 +61,12 @@ export default function BallisticsCalculator() {
   const [results, setResults] = useState<CalculationResponse | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const { calculate, validate, loading, error, resetError } = useBallisticsCalculator();
+  const { theme } = useTheme();
+
+  // Theme-aware chart colors for grid and axes
+  const isDark = theme === 'dark';
+  const gridColor = isDark ? '#374151' : '#e5e7eb';
+  const axisColor = isDark ? '#9ca3af' : '#6b7280';
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -558,55 +565,140 @@ export default function BallisticsCalculator() {
                   </Card>
                 </div>
 
-                {/* Trajectory Chart */}
+                {/* Trajectory Charts with Tabs */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Trajectory Chart</CardTitle>
+                    <CardTitle>Trajectory Charts</CardTitle>
                     <CardDescription>
-                      Bullet drop and windage over distance (in mils)
+                      View bullet drop and windage over distance
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className='my-4'>
-                    <ResponsiveContainer width="100%" height={400}>
-                      <LineChart 
-                        data={formatChartData()}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                        <XAxis 
-                          dataKey="distance" 
-                          label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -15}}
-                          className="foreground"
-                        />
-                        <YAxis 
-                          label={{ value: 'Drop (mils)', angle: -90, position: 'insideLeft' }}
-                          className="primary"
-                        />
-                        <Tooltip 
-                          formatter={(value, name) => [Number(value).toFixed(2), name]}
-                          contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                            color: 'hsl(var(--foreground))'
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="drop"
-                          stroke='var(--foreground)'
-                          strokeWidth={2}
-                          name="Drop (mils)"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="windage"
-                          stroke='var(--foreground)'
-                          strokeWidth={2}
-                          name="Windage (mils)"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                  <CardContent>
+                    <Tabs defaultValue="combined" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="combined">Both</TabsTrigger>
+                        <TabsTrigger value="drop">Elevation</TabsTrigger>
+                        <TabsTrigger value="windage">Windage</TabsTrigger>
+                      </TabsList>
+
+                      {/* Combined Chart */}
+                      <TabsContent value="combined" className="mt-4">
+                        <ResponsiveContainer width="100%" height={400}>
+                          <LineChart 
+                            data={formatChartData()}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                            <XAxis 
+                              dataKey="distance" 
+                              label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -15, fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <YAxis 
+                              label={{ value: 'Adjustment (mils)', angle: -90, position: 'insideLeft', fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <Tooltip 
+                              formatter={(value, name) => [Number(value).toFixed(2), name]}
+                              contentStyle={{
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                border: `1px solid ${gridColor}`,
+                                borderRadius: '6px',
+                                color: isDark ? '#ffffff' : '#000000'
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="drop"
+                              stroke="var(--foreground)"
+                              strokeWidth={2}
+                              name="Drop (mils)"
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="windage"
+                              stroke="var(--foreground)"
+                              strokeWidth={2}
+                              name="Windage (mils)"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </TabsContent>
+
+                      {/* Drop Only Chart */}
+                      <TabsContent value="drop" className="mt-4">
+                        <ResponsiveContainer width="100%" height={400}>
+                          <LineChart 
+                            data={formatChartData()}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                            <XAxis 
+                              dataKey="distance" 
+                              label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -15, fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <YAxis 
+                              label={{ value: 'Drop (mils)', angle: -90, position: 'insideLeft', fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <Tooltip 
+                              formatter={(value) => [Number(value).toFixed(2), 'Drop (mils)']}
+                              contentStyle={{
+                                backgroundColor: isDark ? '#ffffff' : '#ffffff',
+                                border: `1px solid ${gridColor}`,
+                                borderRadius: '6px',
+                                color: isDark ? '#ffffff' : '#ffffff'
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="drop"
+                              stroke="var(--foreground)"
+                              strokeWidth={2}
+                              name="Drop (mils)"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </TabsContent>
+
+                      {/* Windage Only Chart */}
+                      <TabsContent value="windage" className="mt-4">
+                        <ResponsiveContainer width="100%" height={400}>
+                          <LineChart 
+                            data={formatChartData()}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                            <XAxis 
+                              dataKey="distance" 
+                              label={{ value: 'Distance (yards)', position: 'insideBottom', offset: -15, fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <YAxis 
+                              label={{ value: 'Windage (mils)', angle: -90, position: 'insideLeft', fill: axisColor }}
+                              tick={{ fill: axisColor }}
+                            />
+                            <Tooltip 
+                              formatter={(value) => [Number(value).toFixed(2), 'Windage (mils)']}
+                              contentStyle={{
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                border: `1px solid ${gridColor}`,
+                                borderRadius: '6px',
+                                color: isDark ? '#ffffff' : '#000000'
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="windage"
+                              stroke="var(--foreground)"
+                              strokeWidth={2}
+                              name="Windage (mils)"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </TabsContent>
+                    </Tabs>
                   </CardContent>
                 </Card>
 
