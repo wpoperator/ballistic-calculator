@@ -5,7 +5,7 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # Ballistics calculation - use exact package name from PyPI
-py-ballisticcalc>=2.0.0
+py-ballisticcalc>=2.2.1
 
 # Additional optional dependencies for better performance
 # Uncomment if needed:
